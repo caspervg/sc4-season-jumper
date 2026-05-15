@@ -1,93 +1,58 @@
-# SC4 DLL Template
+# SC4 Season Jumper
 
-`SC4 DLL Template` is a GitHub template repository for building new SimCity 4 Win32 DLL plugins with the same basic toolchain and deployment flow used in `sc4-advanced-plop`.
+`SC4SeasonJumper` is a SimCity 4 DLL plugin that advances the simulation at the
+game's fastest speed until a target season begins, then pauses the city. Because
+the simulator is allowed to run normally, daily, monthly, and yearly agents still
+fire while the date advances.
 
-It includes:
+## Controls
 
-- `gzcom-dll`, `sc4-render-services`, and `vcpkg` as git submodules
-- `spdlog`, `mINI` (`pulzed-mini` in vcpkg), and `WIL` via vcpkg manifest mode
-- the Win32 static-library vcpkg triplet `x86-windows-static-md`
-- Visual Studio 2022 Win32 debug and release presets
-- automatic post-build deployment to `Documents\SimCity 4\Plugins`
-- a starter `cRZMessage2COMDirector` implementation
-- reusable logging, version detection, and INI settings helpers
-- a minimal ImGui panel wired through `sc4-render-services`
-- a GitHub Actions workflow that builds Win32 debug and release DLL artifacts
-- a tag-based GitHub Actions release workflow that publishes a packaged release zip
+The hotkey is configured by the companion WinKey DAT resource:
 
-## Quick start
+- `Ctrl+F9`: jump to the next fall start if the current date is January through
+  August, or to the next summer start if the current date is September through
+  December.
+- Press `Ctrl+F9` again while a jump is running to cancel and pause immediately.
 
-1. Create a new repository from this template on GitHub.
-2. Clone it with submodules:
+The plugin also registers these cheat codes through the normal `Ctrl+X` cheat
+dialog:
 
-```powershell
-git clone --recurse-submodules <your-repo-url>
-cd <your-repo-directory>
+- `jumpseason`: same behavior as the hotkey.
+- `jumpspring`: next March 1.
+- `jumpsummer`: next June 1.
+- `jumpfall`: next September 1.
+- `jumpwinter`: next December 1.
+
+## Configuration
+
+The default INI file is copied to the Plugins folder on first deployment:
+
+```ini
+[SC4SeasonJumper]
+LogLevel=info
+LogToFile=true
 ```
 
-3. Rename the template identifiers:
+`LogLevel` accepts `trace`, `debug`, `info`, `warn`, `error`, `critical`, or
+`off`.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\Rename-Project.ps1 -ProjectName YourDllName
-```
+## Building
 
-4. Bootstrap vcpkg:
-
-```powershell
-.\vendor\vcpkg\bootstrap-vcpkg.bat
-```
-
-The template defaults to the Win32 static-library triplet used by this codebase:
-
-```text
-x86-windows-static-md
-```
-
-5. Configure and build the DLL:
+This project targets the 32-bit Windows version of SimCity 4.
 
 ```powershell
 cmake --preset vs2022-win32-debug
 cmake --build --preset vs2022-win32-debug-build
 ```
 
-For a release build:
-
-```powershell
-cmake --preset vs2022-win32-release
-cmake --build --preset vs2022-win32-release-build
-```
-
-## Deployment
-
-By default, the DLL target copies the built DLL into:
+The build deploys `SC4SeasonJumper.dll` and the default INI to:
 
 ```text
 %USERPROFILE%\Documents\SimCity 4\Plugins
 ```
 
-The default INI file in `dist/` is copied only if it does not already exist in the Plugins folder, so user changes survive rebuilds.
-
-Disable automatic deployment with:
+Disable deployment with:
 
 ```powershell
 cmake --preset vs2022-win32-debug -DSC4_ENABLE_PLUGIN_DEPLOYMENT=OFF
 ```
-
-## CI and releases
-
-- `build.yml` runs on pushes to `main`, pull requests, and manual dispatch to validate debug and release builds.
-- `release.yml` runs on tags matching `v*` and publishes a GitHub Release containing a zip with the built DLL, default INI, and README.
-
-## Template layout
-
-- `src/dll/`: DLL source, starter director, utilities, and demo panel
-- `dist/`: default runtime INI file
-- `cmake/`: helper scripts used by the build
-- `tools/`: template maintenance helpers such as project renaming
-- `vendor/`: git submodules
-
-## Notes
-
-- The template is intentionally Win32-only because SimCity 4 is a 32-bit game.
-- `imgui.lib` is built automatically from the `sc4-render-services` submodule by the root CMake project.
-- `mINI` is consumed via vcpkg as the `pulzed-mini` port and included as `mini/ini.h`.

@@ -1,14 +1,16 @@
 #pragma once
 
+#include <cIGZCheatCodeManager.h>
+#include <cIGZMessageServer2.h>
 #include <cRZMessage2COMDirector.h>
+#include <cRZAutoRefCount.h>
 #include <filesystem>
-#include <memory>
 
-#include "public/cIGZImGuiService.h"
+#include "season/FastForwardController.hpp"
 
-class HelloPanel;
 class cIGZMessage2;
 class cIGZCOM;
+class cISC4View3DWin;
 
 class SC4SeasonJumperDirector final : public cRZMessage2COMDirector
 {
@@ -31,9 +33,22 @@ public:
 private:
     static std::filesystem::path GetUserPluginsPath_();
     void InitializeLogger_();
+    void RegisterCityNotifications_();
+    void UnregisterCityNotifications_();
+    void RegisterCheats_();
+    void UnregisterCheats_();
+    void PostCityInit_();
+    void PreCityShutdown_();
+    void RegisterHotkey_();
+    void UnregisterHotkey_();
+    void OnHotkey_();
+    void OnCheat_(uint32_t cheatId);
 
 private:
-    cIGZImGuiService* imguiService_ = nullptr;
-    std::unique_ptr<HelloPanel> panel_;
-    bool panelRegistered_ = false;
+    bool cityLoaded_ = false;
+    bool hotkeyRegistered_ = false;
+    cISC4View3DWin* view3D_ = nullptr;
+    cRZAutoRefCount<cIGZMessageServer2> messageServer_;
+    cRZAutoRefCount<cIGZCheatCodeManager> cheatManager_;
+    SeasonJumper::FastForwardController fastForward_;
 };

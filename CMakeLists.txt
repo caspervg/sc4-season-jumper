@@ -66,6 +66,4 @@ endif()
 find_package(spdlog CONFIG REQUIRED)
 find_package(wil CONFIG REQUIRED)
 
-include(cmake/SC4RenderServicesImGui.cmake)
-
 add_subdirectory(src/dll)

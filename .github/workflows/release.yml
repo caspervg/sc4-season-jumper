@@ -59,9 +59,20 @@ jobs:
           $packageDir = Join-Path "${{ github.workspace }}" "release-package"
           New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
 
-          Copy-Item "cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll" -Destination $packageDir
-          Copy-Item "dist/SC4SeasonJumper.ini" -Destination $packageDir
-          Copy-Item "README.md" -Destination $packageDir
+          $releaseAssets = @(
+            "cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll",
+            "dist/SC4SeasonJumper.ini",
+            "dist/SC4SeasonJumper.dat",
+            "README.md"
+          )
+
+          foreach ($asset in $releaseAssets) {
+            if (-not (Test-Path -LiteralPath $asset)) {
+              throw "Release asset not found: $asset"
+            }
+
+            Copy-Item -LiteralPath $asset -Destination $packageDir
+          }
 
           $archivePath = Join-Path "${{ github.workspace }}" ("SC4SeasonJumper-" + $tag + "-win32.zip")
           if (Test-Path $archivePath) {

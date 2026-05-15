@@ -11,7 +11,6 @@
 namespace {
     constexpr auto kDefaultLogLevel = spdlog::level::info;
     constexpr bool kDefaultLogToFile = true;
-    constexpr bool kDefaultStartWindowVisible = true;
     constexpr auto kSectionName = "SC4SeasonJumper";
 
     std::string ToLower(std::string value)
@@ -59,7 +58,6 @@ namespace {
 Settings::Settings()
     : logLevel_(kDefaultLogLevel)
     , logToFile_(kDefaultLogToFile)
-    , startWindowVisible_(kDefaultStartWindowVisible)
 {
 }
 
@@ -95,14 +93,6 @@ void Settings::Load(const std::filesystem::path& settingsFilePath)
             }
         }
 
-        if (section.has("StartWindowVisible")) {
-            bool valid = false;
-            startWindowVisible_ = ParseBool(section.get("StartWindowVisible"), valid);
-            if (!valid) {
-                startWindowVisible_ = kDefaultStartWindowVisible;
-                LOG_WARN("Invalid StartWindowVisible in {}", settingsFilePath.string());
-            }
-        }
     }
     catch (const std::exception& e) {
         LOG_ERROR("Failed to read settings from {}: {}", settingsFilePath.string(), e.what());
@@ -119,9 +109,3 @@ bool Settings::GetLogToFile() const noexcept
 {
     return logToFile_;
 }
-
-bool Settings::GetStartWindowVisible() const noexcept
-{
-    return startWindowVisible_;
-}
-

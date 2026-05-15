@@ -3,9 +3,6 @@ if(NOT WIN32)
     return()
 endif()
 
-set(SC4_RENDER_SERVICES_ROOT "${CMAKE_SOURCE_DIR}/vendor/sc4-render-services" CACHE PATH "Path to sc4-render-services")
-set(SC4_RENDER_SERVICES_PUBLIC_DIR "${SC4_RENDER_SERVICES_ROOT}/src")
-
 set(GZCOM_DIR "${CMAKE_SOURCE_DIR}/vendor/gzcom-dll/gzcom-dll")
 
 file(GLOB_RECURSE GZCOM_HEADERS CONFIGURE_DEPENDS
@@ -42,7 +39,6 @@ add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES} "${CMAKE_CURRENT_SOURCE_DI
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     NOMINMAX
     WIN32_LEAN_AND_MEAN
-    IMGUI_DLL_IMPORT
     SC4_TEMPLATE_DLL_NAME="${PROJECT_NAME}"
     SC4_TEMPLATE_DLL_VERSION="${PROJECT_VERSION}"
     SC4_TEMPLATE_DLL_VERSION_LABEL="${SC4_TEMPLATE_APP_VERSION}"
@@ -51,19 +47,15 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${MINI_INCLUDE_DIR}"
-    "${SC4_RENDER_SERVICES_PUBLIC_DIR}"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     gzcom2
     spdlog::spdlog
     WIL::WIL
-    SC4RenderServices::imgui
     kernel32
     user32
     Version
-    ddraw
-    dxguid
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

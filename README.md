@@ -2,8 +2,21 @@
 
 `SC4SeasonJumper` is a SimCity 4 DLL plugin that advances the simulation at the
 game's fastest speed until a target season begins, then pauses the city. Because
-the simulator is allowed to run normally, daily, monthly, and yearly agents still
-fire while the date advances.
+the simulator is allowed to run normally it does not cause issues with historical
+city stats, unlike the SC4ExtraCheatsDLL `SimDate` cheat code.
+
+The plugin is mainly meant to make two common date-sensitive workflows easier:
+using seasonal flora, which should be planted on September 1st for consistent
+results, and saving cities on June 1st so region view thumbnails use a consistent
+summer date.
+
+## Installation
+
+Copy these files into your SimCity 4 `Plugins` folder:
+
+- `SC4SeasonJumper.dll`
+- `SC4SeasonJumper.ini`
+- `SC4SeasonJumper.dat`
 
 ## Controls
 
@@ -22,6 +35,9 @@ dialog:
 - `jumpsummer`: next June 1.
 - `jumpfall`: next September 1.
 - `jumpwinter`: next December 1.
+
+The keyboard shortcut can be changed by editing `SC4SeasonJumper.dat` with
+iLive's Reader.
 
 ## Configuration
 

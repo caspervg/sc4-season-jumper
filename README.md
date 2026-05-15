@@ -1,5 +1,7 @@
 # SC4 Season Jumper
 
+![SC4SeasonJumper logo](docs/assets/logo.png)
+
 `SC4SeasonJumper` is a SimCity 4 DLL plugin that advances the simulation at the
 game's fastest speed until a target season begins, then pauses the city. Because
 the simulator is allowed to run normally it does not cause issues with historical

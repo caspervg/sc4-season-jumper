@@ -46,18 +46,6 @@ jobs:
           .\vendor\vcpkg\bootstrap-vcpkg.bat
           echo "VCPKG_ROOT=${{ github.workspace }}/vendor/vcpkg" >> $env:GITHUB_ENV
 
-      - name: Configure sc4-render-services
-        shell: powershell
-        working-directory: vendor/sc4-render-services
-        run: |
-          cmake -B build -G "Visual Studio 17 2022" -A Win32
-
-      - name: Build sc4-render-services imgui
-        shell: powershell
-        working-directory: vendor/sc4-render-services
-        run: |
-          cmake --build build --config Release --target imgui --parallel
-
       - name: Build DLL
         shell: powershell
         run: |
@@ -71,11 +59,11 @@ jobs:
           $packageDir = Join-Path "${{ github.workspace }}" "release-package"
           New-Item -ItemType Directory -Force -Path $packageDir | Out-Null
 
-          Copy-Item "cmake-build-release-visual-studio/src/dll/Release/SC4TemplateDll.dll" -Destination $packageDir
-          Copy-Item "dist/SC4TemplateDll.ini" -Destination $packageDir
+          Copy-Item "cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll" -Destination $packageDir
+          Copy-Item "dist/SC4SeasonJumper.ini" -Destination $packageDir
           Copy-Item "README.md" -Destination $packageDir
 
-          $archivePath = Join-Path "${{ github.workspace }}" ("SC4TemplateDll-" + $tag + "-win32.zip")
+          $archivePath = Join-Path "${{ github.workspace }}" ("SC4SeasonJumper-" + $tag + "-win32.zip")
           if (Test-Path $archivePath) {
             Remove-Item -LiteralPath $archivePath
           }

@@ -1,4 +1,4 @@
-#include "SC4TemplateDllDirector.hpp"
+#include "SC4SeasonJumperDirector.hpp"
 
 #include <cIGZFrameWork.h>
 
@@ -24,16 +24,16 @@ namespace {
     constexpr uint32_t kPanelId = 0xCA510001u;
 }
 
-SC4TemplateDllDirector::SC4TemplateDllDirector() = default;
+SC4SeasonJumperDirector::SC4SeasonJumperDirector() = default;
 
-SC4TemplateDllDirector::~SC4TemplateDllDirector() = default;
+SC4SeasonJumperDirector::~SC4SeasonJumperDirector() = default;
 
-uint32_t SC4TemplateDllDirector::GetDirectorID() const
+uint32_t SC4SeasonJumperDirector::GetDirectorID() const
 {
     return kDirectorId;
 }
 
-bool SC4TemplateDllDirector::OnStart(cIGZCOM* pCOM)
+bool SC4SeasonJumperDirector::OnStart(cIGZCOM* pCOM)
 {
     cRZMessage2COMDirector::OnStart(pCOM);
 
@@ -44,17 +44,17 @@ bool SC4TemplateDllDirector::OnStart(cIGZCOM* pCOM)
     return true;
 }
 
-bool SC4TemplateDllDirector::PreFrameWorkInit()
+bool SC4SeasonJumperDirector::PreFrameWorkInit()
 {
     return true;
 }
 
-bool SC4TemplateDllDirector::PreAppInit()
+bool SC4SeasonJumperDirector::PreAppInit()
 {
     return true;
 }
 
-bool SC4TemplateDllDirector::PostAppInit()
+bool SC4SeasonJumperDirector::PostAppInit()
 {
     InitializeLogger_();
 
@@ -71,7 +71,7 @@ bool SC4TemplateDllDirector::PostAppInit()
         panel_->SetVersionLabel(SC4_TEMPLATE_DLL_VERSION_LABEL);
 
         Settings settings;
-        settings.Load(GetUserPluginsPath_() / "SC4TemplateDll.ini");
+        settings.Load(GetUserPluginsPath_() / "SC4SeasonJumper.ini");
         panel_->SetVisible(settings.GetStartWindowVisible());
 
         const ImGuiPanelDesc desc = ImGuiPanelAdapter<HelloPanel>::MakeDesc(
@@ -95,12 +95,12 @@ bool SC4TemplateDllDirector::PostAppInit()
     return true;
 }
 
-bool SC4TemplateDllDirector::PreAppShutdown()
+bool SC4SeasonJumperDirector::PreAppShutdown()
 {
     return true;
 }
 
-bool SC4TemplateDllDirector::PostAppShutdown()
+bool SC4SeasonJumperDirector::PostAppShutdown()
 {
     if (imguiService_ && panelRegistered_) {
         imguiService_->UnregisterPanel(kPanelId);
@@ -122,28 +122,28 @@ bool SC4TemplateDllDirector::PostAppShutdown()
     return true;
 }
 
-bool SC4TemplateDllDirector::PostSystemServiceShutdown()
+bool SC4SeasonJumperDirector::PostSystemServiceShutdown()
 {
     return true;
 }
 
-bool SC4TemplateDllDirector::AbortiveQuit()
+bool SC4SeasonJumperDirector::AbortiveQuit()
 {
     return true;
 }
 
-bool SC4TemplateDllDirector::OnInstall()
+bool SC4SeasonJumperDirector::OnInstall()
 {
     return true;
 }
 
-bool SC4TemplateDllDirector::DoMessage(cIGZMessage2* pMsg)
+bool SC4SeasonJumperDirector::DoMessage(cIGZMessage2* pMsg)
 {
     (void)pMsg;
     return true;
 }
 
-std::filesystem::path SC4TemplateDllDirector::GetUserPluginsPath_()
+std::filesystem::path SC4SeasonJumperDirector::GetUserPluginsPath_()
 {
     try {
         const auto modulePath = wil::GetModuleFileNameW(wil::GetModuleInstanceHandle());
@@ -154,19 +154,19 @@ std::filesystem::path SC4TemplateDllDirector::GetUserPluginsPath_()
     }
 }
 
-void SC4TemplateDllDirector::InitializeLogger_()
+void SC4SeasonJumperDirector::InitializeLogger_()
 {
     const auto pluginsPath = GetUserPluginsPath_();
     const auto logPath = pluginsPath.parent_path();
-    const auto settingsPath = pluginsPath / "SC4TemplateDll.ini";
+    const auto settingsPath = pluginsPath / "SC4SeasonJumper.ini";
 
-    Logger::Initialize("SC4TemplateDll", logPath.string(), false);
+    Logger::Initialize("SC4SeasonJumper", logPath.string(), false);
 
     Settings settings;
     settings.Load(settingsPath);
 
     Logger::Shutdown();
-    Logger::Initialize("SC4TemplateDll", logPath.string(), settings.GetLogToFile());
+    Logger::Initialize("SC4SeasonJumper", logPath.string(), settings.GetLogToFile());
     Logger::SetLevel(settings.GetLogLevel());
 
     LOG_INFO("Using settings file: {}", settingsPath.string());

@@ -1,6 +1,6 @@
-#include "SC4TemplateDllDirector.hpp"
+#include "SC4SeasonJumperDirector.hpp"
 
-static SC4TemplateDllDirector sDirector;
+static SC4SeasonJumperDirector sDirector;
 
 cRZCOMDllDirector* RZGetCOMDllDirector()
 {

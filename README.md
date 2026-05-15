@@ -43,14 +43,7 @@ The template defaults to the Win32 static-library triplet used by this codebase:
 x86-windows-static-md
 ```
 
-5. Build `imgui.lib` from `sc4-render-services`:
-
-```powershell
-cmake -S .\vendor\sc4-render-services -B .\vendor\sc4-render-services\build -G "Visual Studio 17 2022" -A Win32
-cmake --build .\vendor\sc4-render-services\build --config Release --target imgui
-```
-
-6. Configure and build the DLL:
+5. Configure and build the DLL:
 
 ```powershell
 cmake --preset vs2022-win32-debug
@@ -96,5 +89,5 @@ cmake --preset vs2022-win32-debug -DSC4_ENABLE_PLUGIN_DEPLOYMENT=OFF
 ## Notes
 
 - The template is intentionally Win32-only because SimCity 4 is a 32-bit game.
-- `sc4-render-services` must be built before the DLL because this template links against its `imgui.lib`.
+- `imgui.lib` is built automatically from the `sc4-render-services` submodule by the root CMake project.
 - `mINI` is consumed via vcpkg as the `pulzed-mini` port and included as `mini/ini.h`.

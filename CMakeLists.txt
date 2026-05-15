@@ -45,7 +45,7 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
     endif()
 endif()
 
-project(SC4TemplateDll VERSION ${SC4_TEMPLATE_PROJECT_VERSION} LANGUAGES C CXX)
+project(SC4SeasonJumper VERSION ${SC4_TEMPLATE_PROJECT_VERSION} LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -65,5 +65,7 @@ endif()
 
 find_package(spdlog CONFIG REQUIRED)
 find_package(wil CONFIG REQUIRED)
+
+include(cmake/SC4RenderServicesImGui.cmake)
 
 add_subdirectory(src/dll)

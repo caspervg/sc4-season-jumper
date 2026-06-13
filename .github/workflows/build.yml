@@ -19,15 +19,11 @@ concurrency:
 
 jobs:
   build-win32:
-    name: ${{ matrix.build_type.config }} on ${{ matrix.runner_image }}
-    runs-on: ${{ matrix.runner_image }}
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
-        runner_image:
-          - windows-latest
-          - windows-2022
-        build_type:
+        include:
           - preset: vs2022-win32-debug
             build_preset: vs2022-win32-debug-build
             config: Debug
@@ -67,13 +63,13 @@ jobs:
       - name: Build DLL
         shell: powershell
         run: |
-          cmake --preset ${{ matrix.build_type.preset }}
-          cmake --build --preset ${{ matrix.build_type.build_preset }} --parallel
+          cmake --preset ${{ matrix.preset }}
+          cmake --build --preset ${{ matrix.build_preset }} --parallel
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: SC4SeasonJumper-${{ matrix.build_type.config }}-${{ matrix.runner_image }}-${{ github.sha }}
+          name: SC4SeasonJumper-${{ matrix.config }}-${{ github.sha }}
           compression-level: 0
           path: |
-            ${{ matrix.build_type.binary_dir }}/src/dll/${{ matrix.build_type.config }}/SC4SeasonJumper.dll
+            ${{ matrix.binary_dir }}/src/dll/${{ matrix.config }}/SC4SeasonJumper.dll

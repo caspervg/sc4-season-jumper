@@ -47,6 +47,7 @@ private:
 private:
     bool cityLoaded_ = false;
     bool hotkeyRegistered_ = false;
+    bool fixSeasonalPropVisibility_ = true;
     cISC4View3DWin* view3D_ = nullptr;
     cRZAutoRefCount<cIGZMessageServer2> messageServer_;
     cRZAutoRefCount<cIGZCheatCodeManager> cheatManager_;

@@ -17,6 +17,7 @@
 #include <cRZBaseString.h>
 #include <GZServPtrs.h>
 
+#include "fix/SeasonalPropVisibilityFix.hpp"
 #include "season/SeasonJumpIds.hpp"
 #include "utils/Logger.h"
 #include "utils/Settings.h"
@@ -95,6 +96,9 @@ bool SC4SeasonJumperDirector::PostAppInit()
 
     LOG_INFO("SC4SeasonJumper {} starting", SC4_TEMPLATE_DLL_VERSION_LABEL);
     LOG_INFO("Detected game version: {}", VersionDetection::GetInstance().GetGameVersion());
+
+    SeasonalPropVisibilityFix::Install(
+        fixSeasonalPropVisibility_, VersionDetection::GetInstance().GetGameVersion());
 
     RegisterCityNotifications_();
     RegisterCheats_();
@@ -200,6 +204,8 @@ void SC4SeasonJumperDirector::InitializeLogger_()
     Logger::Shutdown();
     Logger::Initialize("SC4SeasonJumper", logPath.string(), settings.GetLogToFile());
     Logger::SetLevel(settings.GetLogLevel());
+
+    fixSeasonalPropVisibility_ = settings.GetFixSeasonalPropVisibility();
 
     LOG_INFO("Using settings file: {}", settingsPath.string());
 }

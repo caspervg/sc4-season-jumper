@@ -11,6 +11,7 @@
 namespace {
     constexpr auto kDefaultLogLevel = spdlog::level::info;
     constexpr bool kDefaultLogToFile = true;
+    constexpr bool kDefaultFixSeasonalPropVisibility = true;
     constexpr auto kSectionName = "SC4SeasonJumper";
 
     std::string ToLower(std::string value)
@@ -58,6 +59,7 @@ namespace {
 Settings::Settings()
     : logLevel_(kDefaultLogLevel)
     , logToFile_(kDefaultLogToFile)
+    , fixSeasonalPropVisibility_(kDefaultFixSeasonalPropVisibility)
 {
 }
 
@@ -93,6 +95,15 @@ void Settings::Load(const std::filesystem::path& settingsFilePath)
             }
         }
 
+        if (section.has("FixSeasonalPropVisibility")) {
+            bool valid = false;
+            fixSeasonalPropVisibility_ = ParseBool(section.get("FixSeasonalPropVisibility"), valid);
+            if (!valid) {
+                fixSeasonalPropVisibility_ = kDefaultFixSeasonalPropVisibility;
+                LOG_WARN("Invalid FixSeasonalPropVisibility in {}", settingsFilePath.string());
+            }
+        }
+
     }
     catch (const std::exception& e) {
         LOG_ERROR("Failed to read settings from {}: {}", settingsFilePath.string(), e.what());
@@ -108,4 +119,9 @@ spdlog::level::level_enum Settings::GetLogLevel() const noexcept
 bool Settings::GetLogToFile() const noexcept
 {
     return logToFile_;
+}
+
+bool Settings::GetFixSeasonalPropVisibility() const noexcept
+{
+    return fixSeasonalPropVisibility_;
 }

@@ -12,6 +12,10 @@ using seasonal flora, which should be planted on September 1st for consistent
 results, and saving cities on June 1st so region view thumbnails use a consistent
 summer date.
 
+The DLL also includes an enabled-by-default `FixSeasonalPropVisibility` patch
+for the vanilla bug where seasonal props created during their active season can
+stay invisible until the next time their start date comes around.
+
 ## Installation
 
 Copy these files into your SimCity 4 `Plugins` folder:
@@ -49,10 +53,17 @@ The default INI file is copied to the Plugins folder on first deployment:
 [SC4SeasonJumper]
 LogLevel=info
 LogToFile=true
+FixSeasonalPropVisibility=true
 ```
 
 `LogLevel` accepts `trace`, `debug`, `info`, `warn`, `error`, `critical`, or
 `off`.
+
+`FixSeasonalPropVisibility` accepts `true`, `false`, `1`, `0`, `yes`, or `no`.
+When enabled, it fixes the seasonal prop visibility bug for painted props,
+plopped or grown lot props, and 3D prop previews. The patch only installs on the
+supported SimCity 4 1.1.641 executable; on other builds it logs a warning and
+leaves the game unpatched.
 
 ## Building
 

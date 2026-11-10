@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
@@ -16,17 +16,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate semantic version tag
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "Release tags must match vMAJOR.MINOR.PATCH[-PRERELEASE], for example v1.0.0 or v1.0.0-rc.1. Got: $TAG_NAME"
+            exit 1
+          fi
+
   release-win32:
+    needs: validate-tag
     runs-on: windows-2022
+    permissions:
+      contents: write
+      # For the signed attestations.
+      id-token: write
+      attestations: write
+      artifact-metadata: write
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           submodules: recursive
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: actions/github-script@v8
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
@@ -52,6 +71,14 @@ jobs:
           cmake --preset vs2022-win32-release
           cmake --build --preset vs2022-win32-release-build --parallel
 
+      - name: Generate SBOM (SPDX)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          file: cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll
+          format: spdx-json
+          output-file: SC4SeasonJumper.spdx.json
+          upload-artifact: false
+
       - name: Package release assets
         shell: powershell
         run: |
@@ -63,7 +90,8 @@ jobs:
             "cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll",
             "dist/SC4SeasonJumper.ini",
             "dist/SC4SeasonJumper.dat",
-            "README.md"
+            "README.md",
+            "SC4SeasonJumper.spdx.json"
           )
 
           foreach ($asset in $releaseAssets) {
@@ -82,15 +110,39 @@ jobs:
           Compress-Archive -Path (Join-Path $packageDir '*') -DestinationPath $archivePath
           "RELEASE_ARCHIVE=$archivePath" >> $env:GITHUB_ENV
 
+      # Build provenance: proves that this workflow built these files from this commit. Check a download
+      # with `gh attestation verify <file> --repo <owner>/<repo>`. A private repository cannot attest.
+      - name: Attest build provenance
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: |
+            SC4SeasonJumper-${{ github.ref_name }}-win32.zip
+            cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll
+
+      # Links the SBOM to the DLL and the zip.
+      - name: Attest SBOM
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: |
+            SC4SeasonJumper-${{ github.ref_name }}-win32.zip
+            cmake-build-release-visual-studio/src/dll/Release/SC4SeasonJumper.dll
+          sbom-path: SC4SeasonJumper.spdx.json
+
       - name: Publish GitHub release
         shell: powershell
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ github.ref_name }}" "$env:RELEASE_ARCHIVE" `
+          # A tag such as v1.0.0-rc.1 becomes a prerelease.
+          $prerelease = @()
+          if ("${{ github.ref_name }}" -like "*-*") { $prerelease = @("--prerelease") }
+          gh release create "${{ github.ref_name }}" "$env:RELEASE_ARCHIVE" "SC4SeasonJumper.spdx.json" `
             --repo "${{ github.repository }}" `
             --title "${{ github.ref_name }}" `
-            --generate-notes
+            --generate-notes @prerelease
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed with exit code $LASTEXITCODE" }
 
   # Points the sc4pac package at the new release on a branch of caspervg/simtropolis-channel, and
   # links to a prefilled pull request in the job summary. Prereleases never reach sc4pac, so they
@@ -104,7 +156,7 @@ jobs:
     environment: sc4pac
     concurrency: sc4pac-caspervg-sc4-season-jumper
     steps:
-      - uses: caspervg/sc4pac-release-action@v1
+      - uses: caspervg/sc4pac-release-action@af95bc5692cab0a3b32e50aac5b82eb8249ffca9 # v1.0.0
         with:
           channel: sebamarynissen/simtropolis-channel
           asset-id: caspervg-sc4-season-jumper
